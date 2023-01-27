@@ -206,7 +206,8 @@ app.put("/", (request, response) => {
     const updatedData = [updatedStack.total];
     const stackId = updatedStack.stackId;
 
-    const updatedQuery = "UPDATE StackTable SET total = ? WHERE stackId = ?";
+    // const updatedQuery = "UPDATE StackTable SET total = ? WHERE stackId = ?";
+    const updatedQuery = "UPDATE StackTable SET total = total - ChangeStack.value FROM ChangeStack WHERE StackTable.stackId = ChangeStack.stackId AND ChangeStack.activity = 'checkout'";
     const values = [...updatedData, stackId];
 
     db.run(updatedQuery, values, (err) => {
@@ -222,6 +223,31 @@ app.put("/", (request, response) => {
     });
     db.close();
 });
+
+// app.put("/", (request, response) => {
+//     const updatedStack = request.body;
+//     let db = new sqlite3.Database("db/stackmanagement.db");
+
+//     const updatedData = [updatedStack.total];
+//     const stackId = updatedStack.stackId;
+
+//     const updatedQuery = "UPDATE StackTable SET total = total + ChangeStack.value FROM ChangeStack WHERE StackTable.stackId = ChangeStack.stackId AND ChangeStack.activity = 'checkin'";
+//     const values = [...updatedData, stackId];
+
+//     db.run(updatedQuery, values, (err) => {
+//         if(err) {
+//             response.json({
+//                 message: err.message,
+//             });
+//         } else {
+//             response.json({
+//                 message: "Stack updated"
+//             });
+//         }
+//     });
+//     db.close();
+// });
+
 
 app.delete("/", (request, response) => {
     const stackId = parseInt(request.body.stackId);
@@ -251,7 +277,7 @@ app.post("/change", (request, response) => {
 
     let db = new sqlite3.Database("db/stackmanagement.db");
     // let insertQuery = "INSERT INTO StackChange(name, activity, value, stackId) VALUES(?, ?, ?, ?)";
-    let insertQuery = "INSERT INTO ChangeStack_1(name, activity, value, stackId) VALUES(?, ?, ?, ?)";
+    let insertQuery = "INSERT INTO ChangeStack(name, activity, value, stackId) VALUES(?, ?, ?, ?)";
 
     const values = [
         changeStack.name,
@@ -301,6 +327,12 @@ app.get("/change", (request, response) => {
     db.close();
 });
 
+
+// app.put("/change", (req, res) => {
+//   let db = new sqlite3.Database("db/stackmanagement.db");
+  
+//   const updatedQuery = "UPDATE StackTable st SET st.total = st.total + cs.value FROM StackTable st INNER JOIN ChangeStack cs on st.stackId = cs.stackId where cs.activity = 'checkin' ";
+// })
 
 app.get("/select", (request, response) => {
     let db = new sqlite3.Database("db/stackmanagement.db");
