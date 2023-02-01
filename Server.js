@@ -156,9 +156,11 @@ app.post("/change", (request, response) => {
             });
         } else {
     const stackId = changeStack.stackId;
+    console.log("stackId "+ stackId);
     // const updatedQuery = "UPDATE StackTable SET total = (SELECT  SUM (value) FROM ChangeStack cs WHERE stackId = ?) WHERE stackId = ?";
     const selectQuery = "SELECT SUM(value) FROM ChangeStack WHERE stackId = ?"
-    db.all(selectQuery, [], (err, rows) => {
+    
+    db.all(selectQuery, [stackId], (err, rows) => {
         if(err) {
             response.json({
                 message: err.message,
@@ -175,8 +177,10 @@ app.post("/change", (request, response) => {
             //     };
             // }); 
             console.log(rows);
-            const updatedQuery = "UPDATE StackTable SET total = SUM(ChangeStack.value) FROM ChangeStack WHERE StackTable.stackId = ChangeStack.stackId"
-         const values = [stackId];
+            console.log("value: "+ rows[0]["SUM(value)"])
+            const totalValue = rows[0]["SUM(value)"];
+            const updatedQuery = "UPDATE StackTable SET total = ? WHERE stackId = ?"
+         const values = [totalValue, stackId];
 
     db.run(updatedQuery, values, (err) => {
         if(err) {
